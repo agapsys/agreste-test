@@ -66,4 +66,9 @@ public class MockedWebApplication extends AbstractWebApplication {
 			throw new RuntimeException(ex);
 		}
 	}
+
+	@Override
+	public boolean isAbuseCheckEnabled() {
+		return false;
+	}
 }
