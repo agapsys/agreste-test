@@ -29,27 +29,18 @@ import com.agapsys.http.StringEntityRequest;
 import com.agapsys.utils.console.printer.ConsoleColor;
 import com.agapsys.utils.console.printer.ConsolePrinter;
 import com.agapsys.web.action.dispatcher.HttpMethod;
-import com.agapsys.web.toolkit.AbstractWebApplication;
-import com.agapsys.web.toolkit.Module;
-import com.agapsys.web.toolkit.Service;
 import com.agapsys.web.toolkit.modules.PersistenceModule;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Collection;
-import java.util.Date;
-import java.util.TimeZone;
 import javax.persistence.EntityManager;
-import javax.servlet.http.HttpServletResponse;
 
 /**
- *
- * @author leandro-agapsys
+ * Testing utilities for AGRESTE-based applications
+ * @author Leandro Oliveira (leandro@agapsys.com)
  */
-public class TestUtils {
-	// CLASS SCOPE =============================================================
+public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
+	// STATIC SCOPE =============================================================
 	private static TestUtils singleton = null;
 	
 	public static TestUtils getInstance() {
@@ -255,11 +246,8 @@ public class TestUtils {
 		}
 	}
 	
-	/** 
-	 * Prints a colored message to console.
-	 * @param msg message to be print
-	 * @param msgArgs optional message arguments
-	 */
+
+	@Override
 	public void println(String msg, Object...msgArgs) {
 		println(ConsoleColor.MAGENTA, msg, msgArgs);
 	}
@@ -272,124 +260,6 @@ public class TestUtils {
 	 */
 	public void println(ConsoleColor fgColor, String msg, Object...msgArgs) {
 		ConsolePrinter.println(fgColor, msg, msgArgs);
-	}
-
-	/**
-	 * Returns an UTC date at midnight according to parameters
-	 * @param year date year
-	 * @param month month number (1 to 12)
-	 * @param day day of the month
-	 * @return UTC date at midnight
-	 */
-	public Date getUtcDateAtMidnight(int year, int month, int day) {
-		try {
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-			sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-			return sdf.parse(String.format("%4d-%2d-%2dT00:00:00.000Z", year, month, day));
-		} catch (ParseException ex) {
-			throw new RuntimeException(ex);
-		}
-	}
-	
-	/** 
-	 * Return the instance of running application
-	 * @return running application instance.
-	 */
-	public AbstractWebApplication getRunningApplication() {
-		return AbstractWebApplication.getRunningInstance();
-	}
-	
-	/**
-	 * Returns a module used by running application
-	 * @param <T> module type
-	 * @param moduleClass module class
-	 * @return module instance associated with given class
-	 */
-	public <T extends Module> T getApplicationModule(Class<T> moduleClass) {
-		return getRunningApplication().getModule(moduleClass);
-	}
-	
-	/**
-	 * Returns a service used by running application
-	 * @param <T> module type
-	 * @param serviceClass service class
-	 * @return service instance associated with given class
-	 */
-	public <T extends Service> T getApplicationService(Class<T> serviceClass) {
-		return getRunningApplication().getService(serviceClass);
-	}
-	
-	/**
-	 * Checks if two strings are equals with parameterized case-sensitivity
-	 * @param str1 first string
-	 * @param str2 second string
-	 * @param ignoreCase defines if check must ignore case-sensitivity
-	 * @return a boolean indicating if given strings are equals
-	 */
-	public boolean strEquals(String str1, String str2, boolean ignoreCase) {
-		if (ignoreCase)
-			return str1.equalsIgnoreCase(str2);
-		else
-			return str1.equals(str2);
-	}
-	
-	/**
-	 * Returns a boolean indicating if a string collection contains a string with parameterized case-sensitivity
-	 * @param strCollection string collection
-	 * @param str string to be searched
-	 * @param ignoreCase defines if check must ignore case-sensitivity
-	 * @return  a boolean indicating if a string collection contains a string with parameterized case-sensitivity
-	 */
-	public boolean contains(Collection<String> strCollection, String str, boolean ignoreCase) {
-		for (String _str : strCollection) {
-			if (strEquals(_str, str, ignoreCase))
-				return true;
-		}
-		
-		return false;
-	}
-	
-	/**
-	 * Asserts a server response status code
-	 * @param expected expected status code
-	 * @param resp server response
-	 */
-	public void assertStatus(int expected, StringResponse resp) {
-		if (expected != HttpServletResponse.SC_INTERNAL_SERVER_ERROR && resp.getStatusCode() == HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
-			throw new RuntimeException(String.format("Internal Server error. Server response:\n%s", resp.getContentString()));
-		
-		assert expected == resp.getStatusCode() : String.format("Expected %d. Returned: %d", expected, resp.getStatusCode());
-	}
-	
-	/**
-	 * Asserts both server response status code and response contents
-	 * @param expectedStatus expected status code
-	 * @param expectedResponseContent expected response content
-	 * @param resp server response
-	 */
-	public void assertErrorStatus(int expectedStatus, String expectedResponseContent, StringResponse resp) {
-		assertStatus(expectedStatus, resp);
-		
-		assert expectedResponseContent.equals(resp.getContentString()) : String.format("Expected \"%s\". Returned: \"%s\"", expectedResponseContent, resp.getContentString());
-	}
-	
-	/** 
-	 * Performs a pause during test execution
-	 * @param interval pause interval (in milliseconds)
-	 * @param message message
-	 * @param msgArgs optional message arguments
-	 */
-	public void pause(long interval, String message, Object...msgArgs) {
-		println(message, msgArgs);
-		
-		try {
-			Object syncObject = new Object();
-			synchronized(syncObject) {
-				syncObject.wait(interval);
-			}
-		} catch (InterruptedException ex) {
-			throw new RuntimeException(ex);
-		}
 	}
 
 	/**
