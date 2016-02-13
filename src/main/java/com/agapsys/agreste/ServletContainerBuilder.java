@@ -45,7 +45,7 @@ public class ServletContainerBuilder extends com.agapsys.web.toolkit.ServletCont
 	@Override
 	public ServletContextHandlerBuilder addContext(String contextPath) {
 		ServletContextHandlerBuilder ctxHandlerBuilder = super.addContext(contextPath)
-			.registerEventListener(new MockedSecurityListener(securityManager), false)
+			.registerEventListener(new SecurityListener(securityManager), false)
 			.registerFilter(AbuseCheckFilter.class, "/*")
 			.registerFilter(ClientExceptionFilter.class, "/*")
 			.registerFilter(JpaTransactionFilter.class, "/*");
