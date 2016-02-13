@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!--
 
  Copyright 2016 Agapsys Tecnologia Ltda-ME.
@@ -17,32 +16,27 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 -->
-
 <persistence version="2.1" xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
-	<persistence-unit name="default" transaction-type="RESOURCE_LOCAL">
-		
-		<class>com.agapsys.agreste.MyUser</class>
-		
-		<properties>
-			<!-- JPA properties -->
-			<property name="javax.persistence.jdbc.driver"   value="org.h2.Driver" />
-			
-			<!--
+  <persistence-unit name="default" transaction-type="RESOURCE_LOCAL">
+    <class>com.agapsys.agreste.MyUser</class>
+    <class>com.agapsys.agreste.model.AbstractUser</class>
+    <class>com.agapsys.agreste.model.AbstractUserGroup</class>
+    <properties>
+      <!-- JPA properties -->
+      <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
+      <!--
 			<property name="javax.persistence.jdbc.url"      value="jdbc:h2:tcp://localhost/fincal-test" />
 			-->
-			<property name="javax.persistence.jdbc.url"      value="jdbc:h2:mem:test" />
-			<property name="javax.persistence.jdbc.user"     value="sa" />
-			<property name="javax.persistence.jdbc.password" value="sa" />
-			
-			<!-- Hibernate properties -->
-			<property name="hibernate.hbm2ddl.auto" value = "create-drop" />
-			<property name="hibernate.dialect"      value = "org.hibernate.dialect.H2Dialect" />
-			
-			<!--
+      <property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:test"/>
+      <property name="javax.persistence.jdbc.user" value="sa"/>
+      <property name="javax.persistence.jdbc.password" value="sa"/>
+      <!-- Hibernate properties -->
+      <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
+      <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>
+      <!--
 			<property name="hibernate.show_sql" value="true" />
 			<property name="hibernate.format_sql" value="true" />
 			-->
-
-		</properties>
-	</persistence-unit>
+    </properties>
+  </persistence-unit>
 </persistence>
