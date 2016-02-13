@@ -13,7 +13,7 @@ The first build may take a long time as Maven downloads all the dependencies.
 AGRESTE Testing Framework project requires Java 7 compatible runtime and depends on the following external libraries:
 
 * Agapsys REST Environment - AGRESTE (https://github.com/agapsys/agreste)
-* Web Application Toolkit - Testing Framework (https://github.com/agapsys/web-app-toolkit-test)
+* Agapsys Web Application Toolkit - Testing Framework (https://github.com/agapsys/web-app-toolkit-test)
 
 For detailed information on external dependencies please see *pom.xml*.
 
