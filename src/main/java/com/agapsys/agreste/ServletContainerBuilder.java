@@ -38,9 +38,9 @@ public class ServletContainerBuilder extends com.agapsys.web.toolkit.ServletCont
 		this(webApp, DEFAULT_SECURITY_MANAGER);
 	}
 	
-	public ServletContainerBuilder(AbstractWebApplication webApp, WebSecurityManager securityManager) {
+	public ServletContainerBuilder(AbstractWebApplication webApp, WebSecurityManager securityManager, String...securedClasses) {
 		super(webApp);
-		securityListener = new SecurityListener(securityManager);
+		securityListener = new SecurityListener(securityManager, securedClasses);
 		WebSecurity.skipFrozenClasses(true);
 		securityListener.contextInitialized(null);
 	}
