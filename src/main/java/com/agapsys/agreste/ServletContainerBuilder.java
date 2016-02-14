@@ -17,6 +17,7 @@
 package com.agapsys.agreste;
 
 import com.agapsys.security.web.SessionCsrfSecurityManager;
+import com.agapsys.security.web.WebSecurityFilter;
 import com.agapsys.security.web.WebSecurityManager;
 import com.agapsys.sevlet.container.ServletContextHandlerBuilder;
 import com.agapsys.web.toolkit.AbstractWebApplication;
@@ -31,7 +32,7 @@ public class ServletContainerBuilder extends com.agapsys.web.toolkit.ServletCont
 	// =========================================================================
 	
 	// INSTANCE SCOPE ==========================================================
-	private final WebSecurityManager securityManager;
+	private final SecurityListener securityListener;
 	
 	public ServletContainerBuilder(AbstractWebApplication webApp) {
 		this(webApp, DEFAULT_SECURITY_MANAGER);
@@ -39,13 +40,15 @@ public class ServletContainerBuilder extends com.agapsys.web.toolkit.ServletCont
 	
 	public ServletContainerBuilder(AbstractWebApplication webApp, WebSecurityManager securityManager) {
 		super(webApp);
-		this.securityManager = securityManager;
+		securityListener = new SecurityListener(securityManager);
+		WebSecurity.skipFrozenClasses(true);
+		securityListener.contextInitialized(null);
 	}
 
 	@Override
 	public ServletContextHandlerBuilder addContext(String contextPath) {
 		ServletContextHandlerBuilder ctxHandlerBuilder = super.addContext(contextPath)
-			.registerEventListener(new SecurityListener(securityManager), false)
+			.registerFilter(WebSecurityFilter.class, "/*")
 			.registerFilter(AbuseCheckFilter.class, "/*")
 			.registerFilter(ClientExceptionFilter.class, "/*")
 			.registerFilter(JpaTransactionFilter.class, "/*");
