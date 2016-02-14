@@ -252,6 +252,11 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 		println(ConsoleColor.MAGENTA, msg, msgArgs);
 	}
 	
+	@Override
+	public void print(String msg, Object...msgArgs) {
+		print(ConsoleColor.MAGENTA, msg, msgArgs);
+	}
+	
 	/** 
 	 * Prints a colored message to console.
 	 * @param fgColor foreground color
@@ -260,6 +265,16 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 	 */
 	public void println(ConsoleColor fgColor, String msg, Object...msgArgs) {
 		ConsolePrinter.println(fgColor, msg, msgArgs);
+	}
+	
+	/** 
+	 * Prints a colored message to console.
+	 * @param fgColor foreground color
+	 * @param msg message to be print
+	 * @param msgArgs optional message arguments
+	 */
+	public void print(ConsoleColor fgColor, String msg, Object...msgArgs) {
+		ConsolePrinter.print(fgColor, msg, msgArgs);
 	}
 
 	/**
