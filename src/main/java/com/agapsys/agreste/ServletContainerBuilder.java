@@ -20,10 +20,9 @@ import com.agapsys.security.web.SessionCsrfSecurityManager;
 import com.agapsys.security.web.WebSecurityFilter;
 import com.agapsys.security.web.WebSecurityManager;
 import com.agapsys.sevlet.container.ServletContextHandlerBuilder;
-import com.agapsys.web.toolkit.AbstractWebApplication;
 
 /**
- *
+ * Servlet container builder for AGRESTE applications
  * @author Leandro Oliveira (leandro@agapsys.com)
  */
 public class ServletContainerBuilder extends com.agapsys.web.toolkit.ServletContainerBuilder {
@@ -32,28 +31,36 @@ public class ServletContainerBuilder extends com.agapsys.web.toolkit.ServletCont
 	// =========================================================================
 	
 	// INSTANCE SCOPE ==========================================================
-	private final SecurityListener securityListener;
+	private SecurityListener securityListener;
 	
-	public ServletContainerBuilder(AbstractWebApplication webApp) {
-		this(webApp, DEFAULT_SECURITY_MANAGER);
-	}
-	
-	public ServletContainerBuilder(AbstractWebApplication webApp, WebSecurityManager securityManager, String...securedClasses) {
-		super(webApp);
+	private ServletContextHandlerBuilder _addContext(AbstractWebApplication webApp, String contextPath, WebSecurityManager securityManager, String...securedClasses) {
 		securityListener = new SecurityListener(securityManager, securedClasses);
 		WebSecurity.skipFrozenClasses(true);
 		securityListener.contextInitialized(null);
-	}
-
-	@Override
-	public ServletContextHandlerBuilder addContext(String contextPath) {
-		ServletContextHandlerBuilder ctxHandlerBuilder = super.addContext(contextPath)
+		
+		ServletContextHandlerBuilder ctxHandlerBuilder = super.addContext(webApp, contextPath)
 			.registerFilter(WebSecurityFilter.class, "/*")
 			.registerFilter(AbuseCheckFilter.class, "/*")
 			.registerFilter(ClientExceptionFilter.class, "/*")
 			.registerFilter(JpaTransactionFilter.class, "/*");
 		
 		return ctxHandlerBuilder;
+	}
+	
+	public ServletContextHandlerBuilder addContext(AbstractWebApplication webApp, String contextPath, WebSecurityManager securityManager, String...securedClasses) {
+		return _addContext(webApp, contextPath, securityManager, securedClasses);
+	}
+	
+	public final ServletContextHandlerBuilder addContext(AbstractWebApplication webApp, String contextPath, String...securedClasses) {
+		return _addContext(webApp, contextPath, DEFAULT_SECURITY_MANAGER, securedClasses);
+	}
+	
+	public final ServletContextHandlerBuilder addRootContext(AbstractWebApplication webApp, WebSecurityManager securityManager, String...securedClasses) {
+		return _addContext(webApp, ROOT_PATH, securityManager, securedClasses);
+	}
+	
+	public final ServletContextHandlerBuilder addRootContext(AbstractWebApplication webApp, String...securedClasses) {
+		return _addContext(webApp, ROOT_PATH, DEFAULT_SECURITY_MANAGER, securedClasses);
 	}
 	// =========================================================================
 }
