@@ -33,7 +33,7 @@ public class ServletContainerBuilder extends com.agapsys.web.toolkit.ServletCont
 	// INSTANCE SCOPE ==========================================================
 	private SecurityListener securityListener;
 	
-	private ServletContextHandlerBuilder _addContext(AbstractWebApplication webApp, String contextPath, WebSecurityManager securityManager, String...securedClasses) {
+	private ServletContextHandlerBuilder _addContext(Class<? extends AbstractWebApplication> webApp, String contextPath, WebSecurityManager securityManager, String...securedClasses) {
 		securityListener = new SecurityListener(securityManager, securedClasses);
 		WebSecurity.skipFrozenClasses(true);
 		securityListener.contextInitialized(null);
@@ -47,19 +47,19 @@ public class ServletContainerBuilder extends com.agapsys.web.toolkit.ServletCont
 		return ctxHandlerBuilder;
 	}
 	
-	public ServletContextHandlerBuilder addContext(AbstractWebApplication webApp, String contextPath, WebSecurityManager securityManager, String...securedClasses) {
+	public ServletContextHandlerBuilder addContext(Class<? extends AbstractWebApplication> webApp, String contextPath, WebSecurityManager securityManager, String...securedClasses) {
 		return _addContext(webApp, contextPath, securityManager, securedClasses);
 	}
 	
-	public final ServletContextHandlerBuilder addContext(AbstractWebApplication webApp, String contextPath, String...securedClasses) {
+	public final ServletContextHandlerBuilder addContext(Class<? extends AbstractWebApplication> webApp, String contextPath, String...securedClasses) {
 		return _addContext(webApp, contextPath, DEFAULT_SECURITY_MANAGER, securedClasses);
 	}
 	
-	public final ServletContextHandlerBuilder addRootContext(AbstractWebApplication webApp, WebSecurityManager securityManager, String...securedClasses) {
+	public final ServletContextHandlerBuilder addRootContext(Class<? extends AbstractWebApplication> webApp, WebSecurityManager securityManager, String...securedClasses) {
 		return _addContext(webApp, ROOT_PATH, securityManager, securedClasses);
 	}
 	
-	public final ServletContextHandlerBuilder addRootContext(AbstractWebApplication webApp, String...securedClasses) {
+	public final ServletContextHandlerBuilder addRootContext(Class<? extends AbstractWebApplication> webApp, String...securedClasses) {
 		return _addContext(webApp, ROOT_PATH, DEFAULT_SECURITY_MANAGER, securedClasses);
 	}
 	// =========================================================================
