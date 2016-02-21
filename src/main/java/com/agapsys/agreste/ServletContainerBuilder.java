@@ -16,10 +16,12 @@
 
 package com.agapsys.agreste;
 
+import com.agapsys.rcf.Controller;
+import com.agapsys.rcf.WebController;
 import com.agapsys.security.web.SessionCsrfSecurityManager;
 import com.agapsys.security.web.WebSecurityFilter;
 import com.agapsys.security.web.WebSecurityManager;
-import com.agapsys.sevlet.container.ServletContextHandlerBuilder;
+import com.agapsys.sevlet.container.ServletContainer;
 
 /**
  * Servlet container builder for AGRESTE applications
@@ -28,39 +30,63 @@ import com.agapsys.sevlet.container.ServletContextHandlerBuilder;
 public class ServletContainerBuilder extends com.agapsys.web.toolkit.ServletContainerBuilder {
 	// STATIC SCOPE ============================================================
 	private static final WebSecurityManager DEFAULT_SECURITY_MANAGER = new SessionCsrfSecurityManager();
+	
+	public static ServletContainer getControllerContainer(Class<? extends Controller>...controllers) {
+		return getControllerContainer(MockedWebApplication.class, controllers);
+	}
+	
+	public static ServletContainer getControllerContainer(Class<? extends AbstractWebApplication> webApp, Class<? extends Controller>...controllers) {
+		ServletContainerBuilder builder = new ServletContainerBuilder(webApp);
+		for (Class<? extends Controller> controller : controllers) {
+			builder.registerController(controller);
+		}
+		return builder.build();
+	}
 	// =========================================================================
 	
 	// INSTANCE SCOPE ==========================================================
 	private SecurityListener securityListener;
 	
-	private ServletContextHandlerBuilder _addContext(Class<? extends AbstractWebApplication> webApp, String contextPath, WebSecurityManager securityManager, String...securedClasses) {
+	private void init(WebSecurityManager securityManager, String...securedClasses) {
 		securityListener = new SecurityListener(securityManager, securedClasses);
 		WebSecurity.skipFrozenClasses(true);
 		securityListener.contextInitialized(null);
 		
-		ServletContextHandlerBuilder ctxHandlerBuilder = super.addContext(webApp, contextPath)
-			.registerFilter(WebSecurityFilter.class, "/*")
-			.registerFilter(AbuseCheckFilter.class, "/*")
-			.registerFilter(ClientExceptionFilter.class, "/*")
-			.registerFilter(JpaTransactionFilter.class, "/*");
-		
-		return ctxHandlerBuilder;
+		super.registerFilter(WebSecurityFilter.class, "/*");
+		super.registerFilter(AbuseCheckFilter.class, "/*");
+		super.registerFilter(ClientExceptionFilter.class, "/*");
+		super.registerFilter(JpaTransactionFilter.class, "/*");
 	}
 	
-	public ServletContextHandlerBuilder addContext(Class<? extends AbstractWebApplication> webApp, String contextPath, WebSecurityManager securityManager, String...securedClasses) {
-		return _addContext(webApp, contextPath, securityManager, securedClasses);
+	public ServletContainerBuilder(Class<? extends AbstractWebApplication> webApp, WebSecurityManager securityManager, String...securedClasses) {
+		super(webApp);
+		init(securityManager, securedClasses);
+	}
+			
+	public ServletContainerBuilder(Class<? extends AbstractWebApplication> webApp, String...securedClasses) {
+		super(webApp);
+		init(DEFAULT_SECURITY_MANAGER, securedClasses);
 	}
 	
-	public final ServletContextHandlerBuilder addContext(Class<? extends AbstractWebApplication> webApp, String contextPath, String...securedClasses) {
-		return _addContext(webApp, contextPath, DEFAULT_SECURITY_MANAGER, securedClasses);
+	public ServletContainerBuilder registerController(Class<? extends Controller> controllerClass, String name) {
+		return (ServletContainerBuilder) super.registerServlet(controllerClass, String.format("/%s/*", name));
 	}
 	
-	public final ServletContextHandlerBuilder addRootContext(Class<? extends AbstractWebApplication> webApp, WebSecurityManager securityManager, String...securedClasses) {
-		return _addContext(webApp, ROOT_PATH, securityManager, securedClasses);
-	}
+	public ServletContainerBuilder registerController(Class<? extends Controller> controllerClass) {
+		WebController annotation = controllerClass.getAnnotation(WebController.class);
+
+		if (annotation == null)
+			throw new IllegalArgumentException("Controller class does not have a WebController annotation");
+
+		String name = annotation.value();
+		if (name.trim().isEmpty())
+			name = controllerClass.getSimpleName();
+
+		registerController(controllerClass, name);
 	
-	public final ServletContextHandlerBuilder addRootContext(Class<? extends AbstractWebApplication> webApp, String...securedClasses) {
-		return _addContext(webApp, ROOT_PATH, DEFAULT_SECURITY_MANAGER, securedClasses);
+		return this;
 	}
 	// =========================================================================
+
+	
 }

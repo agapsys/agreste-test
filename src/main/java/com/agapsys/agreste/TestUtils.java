@@ -16,7 +16,7 @@
 
 package com.agapsys.agreste;
 
-import com.agapsys.agreste.servlets.BaseServlet;
+import com.agapsys.agreste.controllers.BaseController;
 import com.agapsys.agreste.utils.JsonSerializer;
 import com.agapsys.http.HttpDelete;
 import com.agapsys.http.HttpGet;
@@ -26,9 +26,9 @@ import com.agapsys.http.HttpRequest;
 import com.agapsys.http.HttpResponse.StringResponse;
 import com.agapsys.http.HttpTrace;
 import com.agapsys.http.StringEntityRequest;
+import com.agapsys.rcf.HttpMethod;
 import com.agapsys.utils.console.printer.ConsoleColor;
 import com.agapsys.utils.console.printer.ConsolePrinter;
-import com.agapsys.web.action.dispatcher.HttpMethod;
 import com.agapsys.web.toolkit.modules.PersistenceModule;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -162,7 +162,7 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 		}
 		
 		public EntityRestEndpoint(HttpMethod method, String uri, String...uriParamNames) {
-			this(method, (JsonSerializer) BaseServlet.DEFAULT_SERIALIZER, uri, uriParamNames);
+			this(method, (JsonSerializer) BaseController.DEFAULT_SERIALIZER, uri, uriParamNames);
 		}
 		
 		public HttpRequest getRequest(Object dto, Object...uriParams) {
