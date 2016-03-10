@@ -80,10 +80,15 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 		}
 		
 		public HttpRequest getRequest(String params, Object...paramArgs) {
+			if (params == null)
+				params = "";
+			
 			if (paramArgs.length > 0)
 				params = String.format(params, paramArgs);
 			
-			String finalUri = uri + "?" + params;
+			params = params.trim();
+			
+			String finalUri = params.isEmpty() ? uri : String.format("%s?%s", uri, params);
 			
 			switch (method) {
 				case DELETE:
