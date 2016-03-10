@@ -124,7 +124,6 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 	public static class EntityRestEndpoint {
 		public final HttpMethod method;
 		public final String uri;
-		public final String[] uriParamNames;
 		private JsonSerializer serializer;
 		
 		private final TestUtils testUtils = getInstance();
@@ -140,7 +139,7 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 			return false;
 		}
 
-		public EntityRestEndpoint(HttpMethod method, JsonSerializer serializer, String uri, String...uriParamNames) {			
+		public EntityRestEndpoint(HttpMethod method, JsonSerializer serializer, String uri) {			
 			if (method == null)
 				throw new IllegalArgumentException("Null HTTP method");
 			
@@ -155,28 +154,23 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 			
 			this.method = method;
 			this.uri = uri;
-			this.uriParamNames = uriParamNames;
 			this.serializer = serializer;
 		}
 		
-		public EntityRestEndpoint(HttpMethod method, String uri, String...uriParamNames) {
-			this(method, (JsonSerializer) BaseController.DEFAULT_SERIALIZER, uri, uriParamNames);
+		public EntityRestEndpoint(HttpMethod method, String uri) {
+			this(method, (JsonSerializer) BaseController.DEFAULT_SERIALIZER, uri);
 		}
 		
-		public HttpRequest getRequest(Object dto, Object...uriParams) {
-			StringBuilder uriFormat = new StringBuilder(uri);
+		public HttpRequest getRequest(Object dto, String uriParams, Object...uriParamArgs) {
+			if (uriParams == null)
+				uriParams = "";
 			
-			boolean firstParam = true;
-			for (String paramName : uriParamNames) {
-				if (firstParam) {
-					uriFormat.append("?");
-					firstParam = false;
-				} else {
-					uriFormat.append("&");
-				}
-
-				uriFormat.append(String.format("%s=%%s", paramName));
-			}
+			if (uriParamArgs.length > 0)
+				uriParams = String.format(uriParams, uriParamArgs);
+			
+			uriParams = uriParams.trim();
+			
+			String finalUri = uriParams.isEmpty() ? uri : String.format("%s?%s", uri, uriParams);
 				
 			Class<? extends StringEntityRequest> requestClass;
 			switch (method) {
@@ -195,7 +189,11 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 					throw new UnsupportedOperationException("Unsupported method: " + method.name());
 			}
 
-			return testUtils.createJsonRequest(requestClass, serializer, uriParams[0], uri);
+			return testUtils.createJsonRequest(requestClass, serializer, dto, finalUri);
+		}
+	
+		public HttpRequest getRequest(Object dto) {
+			return getRequest(dto, "");
 		}
 	}
 	// =========================================================================
