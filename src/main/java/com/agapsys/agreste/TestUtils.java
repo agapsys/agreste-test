@@ -53,7 +53,6 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 	public static class RestEndpoint {
 		public final HttpMethod method;
 		public final String uri;
-		public final String[] uriParamNames;
 		
 		private boolean isEntityMethod(HttpMethod method) {
 			switch(method) {
@@ -66,7 +65,7 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 			return false;
 		}
 		
-		public RestEndpoint(HttpMethod method, String uri, String...uriParamNames) {			
+		public RestEndpoint(HttpMethod method, String uri) {			
 			if (method == null)
 				throw new IllegalArgumentException("Null HTTP method");
 			
@@ -78,43 +77,37 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 			
 			this.method = method;
 			this.uri = uri;
-			this.uriParamNames = uriParamNames;
 		}
 		
-		public HttpRequest getRequest(Object...uriParams) {
-			StringBuilder uriFormat = new StringBuilder(uri);
+		public HttpRequest getRequest(String params, Object...paramArgs) {
+			if (paramArgs.length > 0)
+				params = String.format(params, paramArgs);
 			
-			boolean firstParam = true;
-			for (String paramName : uriParamNames) {
-				if (firstParam) {
-					uriFormat.append("?");
-					firstParam = false;
-				} else {
-					uriFormat.append("&");
-				}
-
-				uriFormat.append(String.format("%s=%%s", paramName));
-			}
-
+			String finalUri = uri + "?" + params;
+			
 			switch (method) {
 				case DELETE:
-					return new HttpDelete(uriFormat.toString(), uriParams);
+					return new HttpDelete(finalUri);
 
 				case GET:
-					return new HttpGet(uriFormat.toString(), uriParams);
+					return new HttpGet(finalUri);
 
 				case HEAD:
-					return new HttpHead(uriFormat.toString(), uriParams);
+					return new HttpHead(finalUri);
 
 				case OPTIONS:
-					return new HttpOptions(uriFormat.toString(), uriParams);
+					return new HttpOptions(finalUri);
 
 				case TRACE:
-					return new HttpTrace(uriFormat.toString(), uriParams);
+					return new HttpTrace(finalUri);
 
 				default:
 					throw new UnsupportedOperationException("Unsupported method: " + method.name());
 			}
+		}
+		
+		public final HttpRequest getRequest() {
+			return getRequest("");
 		}
 		
 		@Override
