@@ -192,8 +192,12 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 			return testUtils.createJsonRequest(requestClass, serializer, dto, finalUri);
 		}
 	
-		public HttpRequest getRequest(Object dto) {
+		public final HttpRequest getRequest(Object dto) {
 			return getRequest(dto, "");
+		}
+		
+		public final HttpRequest getRequest() {
+			return getRequest(null);
 		}
 	}
 	// =========================================================================
