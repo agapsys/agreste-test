@@ -199,6 +199,11 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 		public final HttpRequest getRequest() {
 			return getRequest(null);
 		}
+		
+		@Override
+		public String toString() {
+			return String.format("%s %s", method.name(), uri);
+		}
 	}
 	// =========================================================================
 	
