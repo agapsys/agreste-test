@@ -26,6 +26,9 @@ import com.agapsys.http.HttpRequest;
 import com.agapsys.http.HttpResponse.StringResponse;
 import com.agapsys.http.HttpTrace;
 import com.agapsys.http.StringEntityRequest;
+import com.agapsys.http.StringEntityRequest.StringEntityPatch;
+import com.agapsys.http.StringEntityRequest.StringEntityPost;
+import com.agapsys.http.StringEntityRequest.StringEntityPut;
 import com.agapsys.rcf.HttpMethod;
 import com.agapsys.utils.console.printer.ConsoleColor;
 import com.agapsys.utils.console.printer.ConsolePrinter;
@@ -51,26 +54,13 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 	}
 	
 	public static class RestEndpoint {
-		public final HttpMethod method;
-		public final String uri;
-		
-		private boolean isEntityMethod(HttpMethod method) {
-			switch(method) {
-				case POST:
-				case PUT:
-				case PATCH:
-					return true;
-			}
-			
-			return false;
-		}
-		
-		public RestEndpoint(HttpMethod method, String uri) {			
+		private final TestUtils testUtils = getInstance();
+		public final  HttpMethod method;
+		public final  String uri;
+				
+		public RestEndpoint(HttpMethod method, String uri) {
 			if (method == null)
 				throw new IllegalArgumentException("Null HTTP method");
-			
-			if (isEntityMethod(method))
-				throw new UnsupportedOperationException("Unsupported method: " + method.name());
 			
 			if (uri == null || uri.trim().isEmpty())
 				throw new IllegalArgumentException("Null/Empty URI");
@@ -78,6 +68,7 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 			this.method = method;
 			this.uri = uri;
 		}
+		
 		
 		public HttpRequest getRequest(String params, Object...paramArgs) {
 			if (params == null)
@@ -88,7 +79,7 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 			
 			params = params.trim();
 			
-			String finalUri = params.isEmpty() ? uri : String.format("%s?%s", uri, params);
+			String finalUri = params.isEmpty() ? uri : String.format("%s?%s", getUri(), params);
 			
 			switch (method) {
 				case DELETE:
@@ -106,13 +97,31 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 				case TRACE:
 					return new HttpTrace(finalUri);
 
+				case PATCH:
+					return testUtils.createJsonRequest(StringEntityPatch.class, null, null, finalUri);
+					
+				case POST:
+					return testUtils.createJsonRequest(StringEntityPost.class, null, null, finalUri);
+					
+				case PUT:
+					return testUtils.createJsonRequest(StringEntityPut.class, null, null, finalUri);
+					
 				default:
-					throw new UnsupportedOperationException("Unsupported method: " + method.name());
+					throw new UnsupportedOperationException("Unsupported method: " + getMethod().name());
 			}
 		}
 		
 		public final HttpRequest getRequest() {
 			return getRequest("");
+		}
+
+		
+		public HttpMethod getMethod() {
+			return method;
+		}
+
+		public String getUri() {
+			return uri;
 		}
 		
 		@Override
@@ -121,12 +130,10 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 		}
 	}
 	
-	public static class EntityRestEndpoint {
-		public final HttpMethod method;
-		public final String uri;
-		private JsonSerializer serializer;
-		
+	public static class EntityRestEndpoint extends RestEndpoint {
 		private final TestUtils testUtils = getInstance();
+		
+		private JsonSerializer jsonSerializer;
 		
 		private boolean isEntityMethod(HttpMethod method) {
 			switch(method) {
@@ -138,27 +145,25 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 			
 			return false;
 		}
-
-		public EntityRestEndpoint(HttpMethod method, JsonSerializer serializer, String uri) {			
-			if (method == null)
-				throw new IllegalArgumentException("Null HTTP method");
+		
+		public EntityRestEndpoint(HttpMethod method, JsonSerializer jsonSerializer, String uri) {
+			super(method, uri);
 			
 			if (!isEntityMethod(method))
 				throw new UnsupportedOperationException("Unsupported method: " + method.name());
 			
-			if (serializer == null)
-				throw new IllegalArgumentException("Serializer cannot be null");
+			if (jsonSerializer == null)
+				throw new IllegalArgumentException("JSON serializer cannot be null");
 			
-			if (uri == null || uri.trim().isEmpty())
-				throw new IllegalArgumentException("Null/Empty URI");
-			
-			this.method = method;
-			this.uri = uri;
-			this.serializer = serializer;
+			this.jsonSerializer = jsonSerializer;
 		}
 		
 		public EntityRestEndpoint(HttpMethod method, String uri) {
 			this(method, (JsonSerializer) BaseController.DEFAULT_SERIALIZER, uri);
+		}
+		
+		public JsonSerializer getJsonSerializer() {
+			return jsonSerializer;
 		}
 		
 		public HttpRequest getRequest(Object dto, String uriParams, Object...uriParamArgs) {
@@ -170,10 +175,10 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 			
 			uriParams = uriParams.trim();
 			
-			String finalUri = uriParams.isEmpty() ? uri : String.format("%s?%s", uri, uriParams);
+			String finalUri = uriParams.isEmpty() ? getUri() : String.format("%s?%s", getUri(), uriParams);
 				
 			Class<? extends StringEntityRequest> requestClass;
-			switch (method) {
+			switch (getMethod()) {
 				case POST:
 					requestClass = StringEntityRequest.StringEntityPost.class;
 					break;
@@ -186,23 +191,14 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 					break;
 
 				default:
-					throw new UnsupportedOperationException("Unsupported method: " + method.name());
+					throw new UnsupportedOperationException("Unsupported method: " + getMethod().name());
 			}
 
-			return testUtils.createJsonRequest(requestClass, serializer, dto, finalUri);
+			return testUtils.createJsonRequest(requestClass, getJsonSerializer(), dto, finalUri);
 		}
 	
-		public final HttpRequest getRequest(Object dto) {
+		public HttpRequest getRequest(Object dto) {
 			return getRequest(dto, "");
-		}
-		
-		public final HttpRequest getRequest() {
-			return getRequest(null);
-		}
-		
-		@Override
-		public String toString() {
-			return String.format("%s %s", method.name(), uri);
 		}
 	}
 	// =========================================================================
