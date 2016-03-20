@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.agapsys.agreste;
+package com.agapsys.agreste.test;
 
+import com.agapsys.agreste.JpaTransaction;
 import java.util.LinkedList;
 import java.util.List;
 import javax.persistence.EntityManager;

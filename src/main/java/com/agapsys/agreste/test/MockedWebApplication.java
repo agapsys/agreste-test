@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.agapsys.agreste;
+package com.agapsys.agreste.test;
 
+import com.agapsys.agreste.AbstractWebApplication;
 import com.agapsys.web.toolkit.utils.FileUtils;
 import java.io.File;
 import java.io.FileNotFoundException;

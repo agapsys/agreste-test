@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.agapsys.agreste;
+package com.agapsys.agreste.test;
 
 import com.agapsys.agreste.controllers.BaseController;
 import com.agapsys.agreste.utils.JsonSerializer;

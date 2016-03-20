@@ -14,8 +14,14 @@
  * limitations under the License.
  */
 
-package com.agapsys.agreste;
+package com.agapsys.agreste.test;
 
+import com.agapsys.agreste.AbstractWebApplication;
+import com.agapsys.agreste.AbuseCheckFilter;
+import com.agapsys.agreste.ClientExceptionFilter;
+import com.agapsys.agreste.JpaTransactionFilter;
+import com.agapsys.agreste.SecurityListener;
+import com.agapsys.agreste.WebSecurity;
 import com.agapsys.rcf.Controller;
 import com.agapsys.rcf.WebController;
 import com.agapsys.security.web.SessionCsrfSecurityManager;
