@@ -16,8 +16,6 @@
 
 package com.agapsys.agreste.test;
 
-import com.agapsys.agreste.controllers.BaseController;
-import com.agapsys.agreste.utils.JsonSerializer;
 import com.agapsys.http.HttpDelete;
 import com.agapsys.http.HttpGet;
 import com.agapsys.http.HttpHead;
@@ -29,7 +27,9 @@ import com.agapsys.http.StringEntityRequest;
 import com.agapsys.http.StringEntityRequest.StringEntityPatch;
 import com.agapsys.http.StringEntityRequest.StringEntityPost;
 import com.agapsys.http.StringEntityRequest.StringEntityPut;
+import com.agapsys.rcf.Controller;
 import com.agapsys.rcf.HttpMethod;
+import com.agapsys.rcf.JsonSerializer;
 import com.agapsys.utils.console.printer.ConsoleColor;
 import com.agapsys.utils.console.printer.ConsolePrinter;
 import com.agapsys.web.toolkit.modules.PersistenceModule;
@@ -159,7 +159,7 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 		}
 		
 		public EntityRestEndpoint(HttpMethod method, String uri) {
-			this(method, (JsonSerializer) BaseController.DEFAULT_SERIALIZER, uri);
+			this(method, (JsonSerializer) Controller.DEFAULT_SERIALIZER, uri);
 		}
 		
 		public JsonSerializer getJsonSerializer() {
