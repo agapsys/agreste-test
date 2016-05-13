@@ -23,7 +23,7 @@ limitations under the License.
 	
     <groupId>com.agapsys.libs</groupId>
     <artifactId>agreste-test</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.0</version>
     <packaging>jar</packaging>
 	
 	<properties>
@@ -67,12 +67,12 @@ limitations under the License.
 		<dependency>
             <groupId>com.agapsys.libs</groupId>
             <artifactId>agreste</artifactId>
-            <version>0.1.0-SNAPSHOT</version>
+            <version>0.1.0</version>
         </dependency>
         <dependency>
             <groupId>com.agapsys.libs</groupId>
             <artifactId>web-app-toolkit-test</artifactId>
-            <version>0.1.0-SNAPSHOT</version>
+            <version>0.1.0</version>
         </dependency>
 		
 		<!-- Test dependencies -->
