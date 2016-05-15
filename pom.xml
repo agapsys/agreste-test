@@ -32,7 +32,7 @@ limitations under the License.
         <maven.compiler.target>1.7</maven.compiler.target>
     </properties>
 	
-	<name>AGRESTE Testing Framework</name>
+	<name>AGRESTE Testing Library</name>
 	<description>Testing utilities for AGRESTE-based applications</description>
 	<url>https://github.com/agapsys/agreste-test</url>
 	
