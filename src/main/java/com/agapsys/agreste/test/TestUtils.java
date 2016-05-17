@@ -16,6 +16,7 @@
 
 package com.agapsys.agreste.test;
 
+import com.agapsys.agreste.HttpExchange;
 import com.agapsys.http.HttpDelete;
 import com.agapsys.http.HttpGet;
 import com.agapsys.http.HttpHead;
@@ -27,9 +28,9 @@ import com.agapsys.http.StringEntityRequest;
 import com.agapsys.http.StringEntityRequest.StringEntityPatch;
 import com.agapsys.http.StringEntityRequest.StringEntityPost;
 import com.agapsys.http.StringEntityRequest.StringEntityPut;
-import com.agapsys.rcf.Controller;
 import com.agapsys.rcf.HttpMethod;
-import com.agapsys.rcf.JsonSerializer;
+import com.agapsys.rcf.HttpSerializer;
+import com.agapsys.rcf.HttpSerializer.SerializerException;
 import com.agapsys.utils.console.printer.ConsoleColor;
 import com.agapsys.utils.console.printer.ConsolePrinter;
 import com.agapsys.web.toolkit.modules.PersistenceModule;
@@ -69,7 +70,6 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 			this.uri = uri;
 		}
 		
-		
 		public HttpRequest getRequest(String params, Object...paramArgs) {
 			if (params == null)
 				params = "";
@@ -98,13 +98,13 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 					return new HttpTrace(finalUri);
 
 				case PATCH:
-					return testUtils.createJsonRequest(StringEntityPatch.class, null, null, finalUri);
+					return testUtils.createObjectRequest(StringEntityPatch.class, null, finalUri);
 					
 				case POST:
-					return testUtils.createJsonRequest(StringEntityPost.class, null, null, finalUri);
+					return testUtils.createObjectRequest(StringEntityPost.class, null, finalUri);
 					
 				case PUT:
-					return testUtils.createJsonRequest(StringEntityPut.class, null, null, finalUri);
+					return testUtils.createObjectRequest(StringEntityPut.class, null, finalUri);
 					
 				default:
 					throw new UnsupportedOperationException("Unsupported method: " + getMethod().name());
@@ -114,7 +114,6 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 		public final HttpRequest getRequest() {
 			return getRequest("");
 		}
-
 		
 		public HttpMethod getMethod() {
 			return method;
@@ -133,7 +132,7 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 	public static class EntityRestEndpoint extends RestEndpoint {
 		private final TestUtils testUtils = getInstance();
 		
-		private JsonSerializer jsonSerializer;
+		private HttpSerializer serializer;
 		
 		private boolean isEntityMethod(HttpMethod method) {
 			switch(method) {
@@ -146,24 +145,24 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 			return false;
 		}
 		
-		public EntityRestEndpoint(HttpMethod method, JsonSerializer jsonSerializer, String uri) {
+		public EntityRestEndpoint(HttpMethod method, HttpSerializer serializer, String uri) {
 			super(method, uri);
 			
 			if (!isEntityMethod(method))
 				throw new UnsupportedOperationException("Unsupported method: " + method.name());
 			
-			if (jsonSerializer == null)
-				throw new IllegalArgumentException("JSON serializer cannot be null");
+			if (serializer == null)
+				throw new IllegalArgumentException("Serializer cannot be null");
 			
-			this.jsonSerializer = jsonSerializer;
+			this.serializer = serializer;
 		}
 		
 		public EntityRestEndpoint(HttpMethod method, String uri) {
-			this(method, (JsonSerializer) Controller.DEFAULT_SERIALIZER, uri);
+			this(method, HttpExchange.DEFAULT_SERIALIZER, uri);
 		}
 		
-		public JsonSerializer getJsonSerializer() {
-			return jsonSerializer;
+		public HttpSerializer getSerializer() {
+			return serializer;
 		}
 		
 		public HttpRequest getRequest(Object dto, String uriParams, Object...uriParamArgs) {
@@ -194,7 +193,7 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 					throw new UnsupportedOperationException("Unsupported method: " + getMethod().name());
 			}
 
-			return testUtils.createJsonRequest(requestClass, getJsonSerializer(), dto, finalUri);
+			return testUtils.createObjectRequest(getSerializer(), requestClass, dto, finalUri);
 		}
 	
 		public HttpRequest getRequest(Object dto) {
@@ -210,44 +209,51 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 	 * Creates a {@linkplain StringEntityRequest}
 	 * @param <T> Type of returned request
 	 * @param requestClass {@linkplain StringEntityRequest} subclass
-	 * @param jsonSerializer GSON serializer
+	 * @param serializer object serializer
 	 * @param obj object to be serialized and added to request
 	 * @param uri request URI
 	 * @param uriParams optional request URI parameters
 	 * @return request containing given object
 	 */
-	public <T extends StringEntityRequest> T createJsonRequest(Class<T> requestClass, JsonSerializer jsonSerializer, Object obj, String uri, Object...uriParams) {
+	public <T extends StringEntityRequest> T createObjectRequest(HttpSerializer serializer, Class<T> requestClass, Object obj, String uri, Object...uriParams) {
 		try {
 			Constructor c = requestClass.getConstructor(String.class, String.class, String.class, Object[].class);
-			T t = (T) c.newInstance("application/json", "utf-8", uri, uriParams);
+			T t = (T) c.newInstance(serializer.getContentType(), serializer.getCharset(), uri, uriParams);
 			
 			if (obj != null)
-				t.setContentBody(jsonSerializer.toJson(obj));
+				t.setContentBody(serializer.toString(obj));
 			
 			return t;
 		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException |IllegalArgumentException | InvocationTargetException ex) {
 			throw new RuntimeException(ex);
 		}
+		
+	}
+	
+	public final <T extends StringEntityRequest> T createObjectRequest(Class<T> requestClass, Object obj, String uri, Object...uriParams) {
+		return createObjectRequest(HttpExchange.DEFAULT_SERIALIZER, requestClass, obj, uri, uriParams);
 	}
 	
 	/**
-	 * Read an object from a {@linkplain StringResponse} containing a JSON content.
+	 * Read an object from a {@linkplain StringResponse}.
 	 * @param <T> type of object to be read
 	 * @param objClass object class
-	 * @param jsonSerializer JSON serializer used when reading the response
+	 * @param serializer object serializer used when reading the response
 	 * @param resp server response
-	 * @param encoding response content encoding (usually "utf-8")
 	 * @return read object.
 	 */
-	public <T> T readJsonResponse(Class<T> objClass, JsonSerializer jsonSerializer, StringResponse resp, String encoding) {
+	public <T> T readObjectResponse(HttpSerializer serializer, Class<T> objClass, StringResponse resp) {
 		try {
-			return (T) jsonSerializer.readObject(resp.getContentInputStream(), "utf-8", objClass);
-		} catch (IOException ex) {
+			return (T) serializer.readObject(resp.getContentInputStream(), serializer.getCharset(), objClass);
+		} catch (IOException | SerializerException ex) {
 			throw new RuntimeException(ex);
 		}
 	}
 	
-
+	public final <T> T readObjectResponse(Class<T> objClass, StringResponse resp) {
+		return readObjectResponse(HttpExchange.DEFAULT_SERIALIZER, objClass, resp);
+	}
+	
 	@Override
 	public void println(String msg, Object...msgArgs) {
 		println(ConsoleColor.MAGENTA, msg, msgArgs);

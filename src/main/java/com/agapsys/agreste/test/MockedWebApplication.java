@@ -16,7 +16,7 @@
 
 package com.agapsys.agreste.test;
 
-import com.agapsys.agreste.AbstractWebApplication;
+import com.agapsys.agreste.AgresteApplication;
 import com.agapsys.web.toolkit.utils.FileUtils;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -25,7 +25,7 @@ import java.nio.file.Files;
 import javax.servlet.annotation.WebListener;
 
 @WebListener
-public class MockedWebApplication extends AbstractWebApplication {
+public class MockedWebApplication extends AgresteApplication {
 	private File appFolder = null;
 	
 	@Override

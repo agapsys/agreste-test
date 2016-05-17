@@ -16,31 +16,20 @@
 
 package com.agapsys.agreste.test;
 
-import com.agapsys.agreste.AbstractWebApplication;
 import com.agapsys.agreste.AbuseCheckFilter;
 import com.agapsys.agreste.ClientExceptionFilter;
 import com.agapsys.agreste.JpaTransactionFilter;
-import com.agapsys.agreste.SecurityListener;
-import com.agapsys.agreste.WebSecurity;
 import com.agapsys.rcf.Controller;
 import com.agapsys.rcf.WebController;
-import com.agapsys.security.web.SessionCsrfSecurityManager;
-import com.agapsys.security.web.WebSecurityFilter;
-import com.agapsys.security.web.WebSecurityManager;
 import com.agapsys.sevlet.container.ServletContainer;
-import java.util.EventListener;
-import javax.servlet.Filter;
-import javax.servlet.http.HttpServlet;
-import org.eclipse.jetty.server.handler.ErrorHandler;
+import com.agapsys.web.toolkit.AbstractWebApplication;
 
 /**
  * Servlet container builder for AGRESTE applications
  * @author Leandro Oliveira (leandro@agapsys.com)
  */
-public class ServletContainerBuilder extends com.agapsys.web.toolkit.ServletContainerBuilder {
+public class ServletContainerBuilder<T extends ServletContainerBuilder> extends com.agapsys.web.toolkit.ServletContainerBuilder<T> {
 	// STATIC SCOPE ============================================================
-	private static final WebSecurityManager DEFAULT_SECURITY_MANAGER = new SessionCsrfSecurityManager();
-	
 	public static ServletContainer getControllerContainer(Class<? extends Controller>...controllers) {
 		return getControllerContainer(MockedWebApplication.class, controllers);
 	}
@@ -55,28 +44,17 @@ public class ServletContainerBuilder extends com.agapsys.web.toolkit.ServletCont
 	// =========================================================================
 	
 	// INSTANCE SCOPE ==========================================================
-	private SecurityListener securityListener;
-	
-	private void init(WebSecurityManager securityManager, String...securedClasses) {
-		securityListener = new SecurityListener(securityManager, securedClasses);
-		WebSecurity.skipFrozenClasses(true);
-		securityListener.contextInitialized(null);
-		
-		super.registerFilter(WebSecurityFilter.class, "/*");
+	private void init() {
 		super.registerFilter(AbuseCheckFilter.class, "/*");
 		super.registerFilter(ClientExceptionFilter.class, "/*");
 		super.registerFilter(JpaTransactionFilter.class, "/*");
 	}
+
+	public ServletContainerBuilder(Class<? extends AbstractWebApplication> webApp) {
+		super(webApp);
+		init();
+	}
 	
-	public ServletContainerBuilder(Class<? extends AbstractWebApplication> webApp, WebSecurityManager securityManager, String...securedClasses) {
-		super(webApp);
-		init(securityManager, securedClasses);
-	}
-			
-	public ServletContainerBuilder(Class<? extends AbstractWebApplication> webApp, String...securedClasses) {
-		super(webApp);
-		init(DEFAULT_SECURITY_MANAGER, securedClasses);
-	}
 	
 	public ServletContainerBuilder registerController(Class<? extends Controller> controllerClass, String name) {
 		return (ServletContainerBuilder) super.registerServlet(controllerClass, String.format("/%s/*", name));
@@ -86,7 +64,7 @@ public class ServletContainerBuilder extends com.agapsys.web.toolkit.ServletCont
 		WebController annotation = controllerClass.getAnnotation(WebController.class);
 
 		if (annotation == null)
-			throw new IllegalArgumentException("Controller class does not have a WebController annotation");
+			throw new IllegalArgumentException(String.format("Missing annotation '%s' for '%s'", WebController.class.getName(), controllerClass.getName()));
 
 		String name = annotation.value();
 		if (name.trim().isEmpty())
@@ -95,36 +73,6 @@ public class ServletContainerBuilder extends com.agapsys.web.toolkit.ServletCont
 		registerController(controllerClass, name);
 	
 		return this;
-	}
-	
-	@Override
-	public ServletContainerBuilder setLocalPort(int localPort) {
-		return (ServletContainerBuilder) super.setLocalPort(localPort);
-	}
-
-	@Override
-	public ServletContainerBuilder setErrorHandler(ErrorHandler errorHandler) {
-		return (ServletContainerBuilder) super.setErrorHandler(errorHandler);
-	}
-
-	@Override
-	public ServletContainerBuilder registerErrorPage(int code, String url) {
-		return (ServletContainerBuilder) super.registerErrorPage(code, url);
-	}
-
-	@Override
-	public ServletContainerBuilder registerServlet(Class<? extends HttpServlet> servletClass, String urlPattern) {
-		return (ServletContainerBuilder) super.registerServlet(servletClass, urlPattern);
-	}
-
-	@Override
-	public ServletContainerBuilder registerFilter(Class<? extends Filter> filterClass, String urlPattern, boolean append) {
-		return (ServletContainerBuilder) super.registerFilter(filterClass, urlPattern, append);
-	}
-
-	@Override
-	public ServletContainerBuilder registerEventListener(Class<? extends EventListener> eventListener, boolean append) {
-		return (ServletContainerBuilder) super.registerEventListener(eventListener, append);
 	}
 	// =========================================================================
 }
