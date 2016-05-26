@@ -33,7 +33,7 @@ public class ServletContainerBuilder<T extends ServletContainerBuilder> extends 
 	public static ServletContainer getControllerContainer(Class<? extends Controller>...controllers) {
 		return getControllerContainer(MockedWebApplication.class, controllers);
 	}
-	
+
 	public static ServletContainer getControllerContainer(Class<? extends AbstractWebApplication> webApp, Class<? extends Controller>...controllers) {
 		ServletContainerBuilder builder = new ServletContainerBuilder(webApp);
 		for (Class<? extends Controller> controller : controllers) {
@@ -42,7 +42,7 @@ public class ServletContainerBuilder<T extends ServletContainerBuilder> extends 
 		return builder.build();
 	}
 	// =========================================================================
-	
+
 	// INSTANCE SCOPE ==========================================================
 	private void init() {
 		super.registerFilter(AbuseCheckFilter.class, "/*");
@@ -54,12 +54,15 @@ public class ServletContainerBuilder<T extends ServletContainerBuilder> extends 
 		super(webApp);
 		init();
 	}
-	
-	
+
+	public ServletContainerBuilder() {
+		this(MockedWebApplication.class);
+	}
+
 	public ServletContainerBuilder registerController(Class<? extends Controller> controllerClass, String name) {
 		return (ServletContainerBuilder) super.registerServlet(controllerClass, String.format("/%s/*", name));
 	}
-	
+
 	public ServletContainerBuilder registerController(Class<? extends Controller> controllerClass) {
 		WebController annotation = controllerClass.getAnnotation(WebController.class);
 
@@ -71,7 +74,7 @@ public class ServletContainerBuilder<T extends ServletContainerBuilder> extends 
 			name = controllerClass.getSimpleName();
 
 		registerController(controllerClass, name);
-	
+
 		return this;
 	}
 	// =========================================================================
