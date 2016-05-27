@@ -31,12 +31,14 @@ import com.agapsys.http.StringEntityRequest.StringEntityPut;
 import com.agapsys.rcf.HttpMethod;
 import com.agapsys.rcf.HttpSerializer;
 import com.agapsys.rcf.HttpSerializer.SerializerException;
+import com.agapsys.rcf.JsonHttpSerializer;
 import com.agapsys.utils.console.printer.ConsoleColor;
 import com.agapsys.utils.console.printer.ConsolePrinter;
 import com.agapsys.web.toolkit.modules.PersistenceModule;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 import javax.persistence.EntityManager;
 
 /**
@@ -46,41 +48,41 @@ import javax.persistence.EntityManager;
 public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 	// STATIC SCOPE =============================================================
 	private static TestUtils singleton = null;
-	
+
 	public static TestUtils getInstance() {
 		if (singleton == null)
 			singleton = new TestUtils();
-		
+
 		return singleton;
 	}
-	
+
 	public static class RestEndpoint {
 		private final TestUtils testUtils = getInstance();
 		public final  HttpMethod method;
 		public final  String uri;
-				
+
 		public RestEndpoint(HttpMethod method, String uri) {
 			if (method == null)
 				throw new IllegalArgumentException("Null HTTP method");
-			
+
 			if (uri == null || uri.trim().isEmpty())
 				throw new IllegalArgumentException("Null/Empty URI");
-			
+
 			this.method = method;
 			this.uri = uri;
 		}
-		
+
 		public HttpRequest getRequest(String params, Object...paramArgs) {
 			if (params == null)
 				params = "";
-			
+
 			if (paramArgs.length > 0)
 				params = String.format(params, paramArgs);
-			
+
 			params = params.trim();
-			
+
 			String finalUri = params.isEmpty() ? uri : String.format("%s?%s", getUri(), params);
-			
+
 			switch (method) {
 				case DELETE:
 					return new HttpDelete(finalUri);
@@ -99,22 +101,22 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 
 				case PATCH:
 					return testUtils.createObjectRequest(StringEntityPatch.class, null, finalUri);
-					
+
 				case POST:
 					return testUtils.createObjectRequest(StringEntityPost.class, null, finalUri);
-					
+
 				case PUT:
 					return testUtils.createObjectRequest(StringEntityPut.class, null, finalUri);
-					
+
 				default:
 					throw new UnsupportedOperationException("Unsupported method: " + getMethod().name());
 			}
 		}
-		
+
 		public final HttpRequest getRequest() {
 			return getRequest("");
 		}
-		
+
 		public HttpMethod getMethod() {
 			return method;
 		}
@@ -122,18 +124,18 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 		public String getUri() {
 			return uri;
 		}
-		
+
 		@Override
 		public String toString() {
 			return String.format("%s %s", method.name(), uri);
 		}
 	}
-	
+
 	public static class EntityRestEndpoint extends RestEndpoint {
 		private final TestUtils testUtils = getInstance();
-		
+
 		private HttpSerializer serializer;
-		
+
 		private boolean isEntityMethod(HttpMethod method) {
 			switch(method) {
 				case POST:
@@ -141,41 +143,41 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 				case PATCH:
 					return true;
 			}
-			
+
 			return false;
 		}
-		
+
 		public EntityRestEndpoint(HttpMethod method, HttpSerializer serializer, String uri) {
 			super(method, uri);
-			
+
 			if (!isEntityMethod(method))
 				throw new UnsupportedOperationException("Unsupported method: " + method.name());
-			
+
 			if (serializer == null)
 				throw new IllegalArgumentException("Serializer cannot be null");
-			
+
 			this.serializer = serializer;
 		}
-		
+
 		public EntityRestEndpoint(HttpMethod method, String uri) {
 			this(method, HttpExchange.DEFAULT_SERIALIZER, uri);
 		}
-		
+
 		public HttpSerializer getSerializer() {
 			return serializer;
 		}
-		
+
 		public HttpRequest getRequest(Object dto, String uriParams, Object...uriParamArgs) {
 			if (uriParams == null)
 				uriParams = "";
-			
+
 			if (uriParamArgs.length > 0)
 				uriParams = String.format(uriParams, uriParamArgs);
-			
+
 			uriParams = uriParams.trim();
-			
+
 			String finalUri = uriParams.isEmpty() ? getUri() : String.format("%s?%s", getUri(), uriParams);
-				
+
 			Class<? extends StringEntityRequest> requestClass;
 			switch (getMethod()) {
 				case POST:
@@ -195,16 +197,16 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 
 			return testUtils.createObjectRequest(getSerializer(), requestClass, dto, finalUri);
 		}
-	
+
 		public HttpRequest getRequest(Object dto) {
 			return getRequest(dto, "");
 		}
 	}
 	// =========================================================================
-	
+
 	// INSTANCE SCOPE ==========================================================
 	protected TestUtils() {}
-	
+
 	/**
 	 * Creates a {@linkplain StringEntityRequest}
 	 * @param <T> Type of returned request
@@ -219,21 +221,21 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 		try {
 			Constructor c = requestClass.getConstructor(String.class, String.class, String.class, Object[].class);
 			T t = (T) c.newInstance(serializer.getContentType(), serializer.getCharset(), uri, uriParams);
-			
+
 			if (obj != null)
 				t.setContentBody(serializer.toString(obj));
-			
+
 			return t;
 		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException |IllegalArgumentException | InvocationTargetException ex) {
 			throw new RuntimeException(ex);
 		}
-		
+
 	}
-	
+
 	public final <T extends StringEntityRequest> T createObjectRequest(Class<T> requestClass, Object obj, String uri, Object...uriParams) {
 		return createObjectRequest(HttpExchange.DEFAULT_SERIALIZER, requestClass, obj, uri, uriParams);
 	}
-	
+
 	/**
 	 * Read an object from a {@linkplain StringResponse}.
 	 * @param <T> type of object to be read
@@ -249,22 +251,49 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 			throw new RuntimeException(ex);
 		}
 	}
-	
+
 	public final <T> T readObjectResponse(Class<T> objClass, StringResponse resp) {
 		return readObjectResponse(HttpExchange.DEFAULT_SERIALIZER, objClass, resp);
 	}
-	
+
+	/**
+	 * Reads a JSON list from given response.
+	 * @param <E> List element type
+	 * @param jsonSerializer JSON serializer.
+	 * @param elementClass List element class.
+	 * @param resp server response
+	 * @return JSON list contained in given response.
+	 */
+	public <E> List<E> readJsonList(JsonHttpSerializer jsonSerializer, Class<E> elementClass, StringResponse resp) {
+		try {
+			return jsonSerializer.getJsonList(resp.getContentInputStream(), "utf-8", elementClass);
+		} catch (IOException | SerializerException ex) {
+			throw new RuntimeException(ex);
+		}
+	}
+
+	/**
+	 * Reads a JSON list from given response.
+	 * @param <E> List element type
+	 * @param elementClass List element class.
+	 * @param resp server response
+	 * @return JSON list contained in given response.
+	 */
+	public final <E> List<E> readJsonList(Class<E> elementClass, StringResponse resp) {
+		return readJsonList((JsonHttpSerializer)HttpExchange.DEFAULT_SERIALIZER, elementClass, resp);
+	}
+
 	@Override
 	public void println(String msg, Object...msgArgs) {
 		println(ConsoleColor.MAGENTA, msg, msgArgs);
 	}
-	
+
 	@Override
 	public void print(String msg, Object...msgArgs) {
 		print(ConsoleColor.MAGENTA, msg, msgArgs);
 	}
-	
-	/** 
+
+	/**
 	 * Prints a colored message to console.
 	 * @param fgColor foreground color
 	 * @param msg message to be print
@@ -273,8 +302,8 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 	public void println(ConsoleColor fgColor, String msg, Object...msgArgs) {
 		ConsolePrinter.println(fgColor, msg, msgArgs);
 	}
-	
-	/** 
+
+	/**
 	 * Prints a colored message to console.
 	 * @param fgColor foreground color
 	 * @param msg message to be print
