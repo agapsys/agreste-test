@@ -23,6 +23,10 @@ import com.agapsys.rcf.Controller;
 import com.agapsys.rcf.WebController;
 import com.agapsys.sevlet.container.ServletContainer;
 import com.agapsys.web.toolkit.AbstractWebApplication;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 /**
  * Servlet container builder for AGRESTE applications
@@ -41,13 +45,54 @@ public class ServletContainerBuilder<T extends ServletContainerBuilder> extends 
 		}
 		return builder.build();
 	}
+
+	private static final String EMBEDDED_CONTROLER_INFO = "/META-INF/rcf.info";
+	private static final String EMBEDDED_CONTROLER_INFO_ENCODING = "utf-8";
 	// =========================================================================
 
 	// INSTANCE SCOPE ==========================================================
+	private void registerScannedControllers() {
+		InputStream is = null;
+		try {
+
+			is = ServletContainerBuilder.class.getResourceAsStream(EMBEDDED_CONTROLER_INFO);
+
+			if (is == null)
+				return;
+
+			BufferedReader in = new BufferedReader(new InputStreamReader(is, EMBEDDED_CONTROLER_INFO_ENCODING));
+
+			String readLine;
+
+			while ((readLine = in.readLine()) != null) {
+				readLine = readLine.trim();
+
+				if (readLine.isEmpty() || readLine.startsWith("#"))
+					continue;
+
+				registerController((Class<? extends Controller>) Class.forName(readLine));
+			}
+
+			in.close();
+
+		} catch (IOException | ClassNotFoundException ex) {
+			throw new RuntimeException(ex);
+		} finally {
+			if (is != null)
+				try {
+					is.close();
+			} catch (IOException ex) {
+				throw new RuntimeException(ex);
+			}
+		}
+	}
+
 	private void init() {
 		super.registerFilter(AbuseCheckFilter.class, "/*");
 		super.registerFilter(ClientExceptionFilter.class, "/*");
 		super.registerFilter(JpaTransactionFilter.class, "/*");
+
+		registerScannedControllers();
 	}
 
 	public ServletContainerBuilder(Class<? extends AbstractWebApplication> webApp) {
