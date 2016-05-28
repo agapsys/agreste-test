@@ -26,12 +26,13 @@ public class MockedTransaction implements JpaTransaction {
 	private final List<Runnable> commitQueue = new LinkedList<>();
 	private final List<Runnable> rollbackQueue = new LinkedList<>();
 
-	private final EntityManager em;
-	private final EntityTransaction et;
+	private EntityManager em;
+	private EntityTransaction et;
 
 	public MockedTransaction(EntityManager em) {
 		this.em = em;
 		this.et = em.getTransaction();
+
 		if (!this.et.isActive())
 			this.et.begin();
 	}
@@ -59,7 +60,8 @@ public class MockedTransaction implements JpaTransaction {
 		} else {
 			et.rollback();
 		}
-		em.close();
+
+		et = em.getTransaction();
 	}
 
 	private void processQueue(List<Runnable> queue) {
@@ -68,6 +70,11 @@ public class MockedTransaction implements JpaTransaction {
 		}
 
 		queue.clear();
+	}
+
+	public void begin() {
+		if (!et.isActive())
+			et.begin();
 	}
 
 	public void rollback() {
