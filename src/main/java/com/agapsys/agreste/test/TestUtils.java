@@ -29,8 +29,8 @@ import com.agapsys.http.StringEntityRequest.StringEntityPatch;
 import com.agapsys.http.StringEntityRequest.StringEntityPost;
 import com.agapsys.http.StringEntityRequest.StringEntityPut;
 import com.agapsys.rcf.HttpMethod;
-import com.agapsys.rcf.HttpSerializer;
-import com.agapsys.rcf.HttpSerializer.SerializerException;
+import com.agapsys.rcf.HttpObjectSerializer;
+import com.agapsys.rcf.HttpObjectSerializer.SerializerException;
 import com.agapsys.rcf.JsonHttpSerializer;
 import com.agapsys.utils.console.printer.ConsoleColor;
 import com.agapsys.utils.console.printer.ConsolePrinter;
@@ -134,7 +134,7 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 	public static class EntityRestEndpoint extends RestEndpoint {
 		private final TestUtils testUtils = getInstance();
 
-		private HttpSerializer serializer;
+		private HttpObjectSerializer serializer;
 
 		private boolean isEntityMethod(HttpMethod method) {
 			switch(method) {
@@ -147,7 +147,7 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 			return false;
 		}
 
-		public EntityRestEndpoint(HttpMethod method, HttpSerializer serializer, String uri) {
+		public EntityRestEndpoint(HttpMethod method, HttpObjectSerializer serializer, String uri) {
 			super(method, uri);
 
 			if (!isEntityMethod(method))
@@ -163,7 +163,7 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 			this(method, HttpExchange.DEFAULT_SERIALIZER, uri);
 		}
 
-		public HttpSerializer getSerializer() {
+		public HttpObjectSerializer getSerializer() {
 			return serializer;
 		}
 
@@ -217,7 +217,7 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 	 * @param uriParams optional request URI parameters
 	 * @return request containing given object
 	 */
-	public <T extends StringEntityRequest> T createObjectRequest(HttpSerializer serializer, Class<T> requestClass, Object obj, String uri, Object...uriParams) {
+	public <T extends StringEntityRequest> T createObjectRequest(HttpObjectSerializer serializer, Class<T> requestClass, Object obj, String uri, Object...uriParams) {
 		try {
 			Constructor c = requestClass.getConstructor(String.class, String.class, String.class, Object[].class);
 			T t = (T) c.newInstance(serializer.getContentType(), serializer.getCharset(), uri, uriParams);
@@ -244,7 +244,7 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
 	 * @param resp server response
 	 * @return read object.
 	 */
-	public <T> T readObjectResponse(HttpSerializer serializer, Class<T> objClass, StringResponse resp) {
+	public <T> T readObjectResponse(HttpObjectSerializer serializer, Class<T> objClass, StringResponse resp) {
 		try {
 			return (T) serializer.readObject(resp.getContentInputStream(), serializer.getCharset(), objClass);
 		} catch (IOException | SerializerException ex) {

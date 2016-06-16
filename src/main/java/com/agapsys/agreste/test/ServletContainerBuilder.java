@@ -20,6 +20,7 @@ import com.agapsys.agreste.AbuseCheckFilter;
 import com.agapsys.agreste.ClientExceptionFilter;
 import com.agapsys.agreste.JpaTransactionFilter;
 import com.agapsys.rcf.Controller;
+import com.agapsys.rcf.ControllerRegistrationListener;
 import com.agapsys.rcf.WebController;
 import com.agapsys.sevlet.container.ServletContainer;
 import com.agapsys.web.toolkit.AbstractWebApplication;
@@ -114,9 +115,10 @@ public class ServletContainerBuilder<T extends ServletContainerBuilder> extends 
 		if (annotation == null)
 			throw new IllegalArgumentException(String.format("Missing annotation '%s' for '%s'", WebController.class.getName(), controllerClass.getName()));
 
-		String name = annotation.value();
-		if (name.trim().isEmpty())
-			name = controllerClass.getSimpleName();
+		String name = annotation.value().trim();
+
+		if (name.isEmpty())
+			name = ControllerRegistrationListener.getDefaultMapping(controllerClass);
 
 		registerController(controllerClass, name);
 
