@@ -77,8 +77,6 @@ public class MockedWebApplication extends AgresteApplication {
 
 		LogModule logModule = getModule(LogModule.class);
 		ConsoleLogStream consoleLogStream = new ConsoleLogStream();
-		consoleLogStream.init(logModule);
-
 		logModule.addStream(consoleLogStream);
 	}
 }
