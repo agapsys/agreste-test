@@ -23,7 +23,7 @@ limitations under the License.
 
     <groupId>com.agapsys.libs</groupId>
     <artifactId>agreste-test</artifactId>
-    <version>5.0.1</version>
+    <version>6.0.0</version>
     <packaging>jar</packaging>
 
 	<properties>
@@ -67,7 +67,7 @@ limitations under the License.
 		<dependency>
             <groupId>com.agapsys.libs</groupId>
             <artifactId>agreste</artifactId>
-            <version>[5.0.0, 6.0.0)</version>
+            <version>[6.0.0, 7.0.0)</version>
         </dependency>
 		<dependency>
             <groupId>com.agapsys.libs</groupId>
