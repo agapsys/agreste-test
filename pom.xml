@@ -26,50 +26,50 @@ limitations under the License.
     <version>6.0.0</version>
     <packaging>jar</packaging>
 
-	<properties>
+    <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
     </properties>
 
-	<name>AGRESTE Testing Library</name>
-	<description>Testing utilities for AGRESTE-based applications</description>
-	<url>https://github.com/agapsys/agreste-test</url>
+    <name>AGRESTE Testing Library</name>
+    <description>Testing utilities for AGRESTE-based applications</description>
+    <url>https://github.com/agapsys/agreste-test</url>
 
-	<licenses>
-		<license>
-			<name>The Apache License, Version 2.0</name>
-			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-		</license>
-	</licenses>
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
 
-	<developers>
-		<developer>
-			<name>Leandro Oliveira</name>
-			<email>leandro@agapsys.com</email>
-			<organization>Agapsys Tecnologia Ltda-ME</organization>
-			<organizationUrl>http://www.agapsys.com</organizationUrl>
-		</developer>
-	</developers>
+    <developers>
+        <developer>
+            <name>Leandro Oliveira</name>
+            <email>leandro@agapsys.com</email>
+            <organization>Agapsys Tecnologia Ltda-ME</organization>
+            <organizationUrl>http://www.agapsys.com</organizationUrl>
+        </developer>
+    </developers>
 
-	<scm>
-		<connection>scm:git:git@github.com:agapsys/agreste-test.git</connection>
-		<url>git@github.com:agapsys/agreste-test.git</url>
-	</scm>
+    <scm>
+        <connection>scm:git:git@github.com:agapsys/agreste-test.git</connection>
+        <url>git@github.com:agapsys/agreste-test.git</url>
+    </scm>
 
-	<organization>
-		<name>Agapsys Tecnologia Ltda-ME</name>
-		<url>http://www.agapsys.com</url>
-	</organization>
+    <organization>
+        <name>Agapsys Tecnologia Ltda-ME</name>
+        <url>http://www.agapsys.com</url>
+    </organization>
 
     <dependencies>
-		<!-- Compile dependencies -->
-		<dependency>
+        <!-- Compile dependencies -->
+        <dependency>
             <groupId>com.agapsys.libs</groupId>
             <artifactId>agreste</artifactId>
             <version>[6.0.0, 7.0.0)</version>
         </dependency>
-		<dependency>
+        <dependency>
             <groupId>com.agapsys.libs</groupId>
             <artifactId>console-utils</artifactId>
             <version>[1.0.0, 2.0.0)</version>
@@ -80,19 +80,19 @@ limitations under the License.
             <version>[2.0.0, 3.0.0)</version>
         </dependency>
 
-		<!-- Test dependencies -->
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.10</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
-			<version>1.4.190</version>
-			<scope>test</scope>
-		</dependency>
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.10</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>1.4.190</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>
