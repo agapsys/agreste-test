@@ -30,7 +30,7 @@ limitations under the License.
         <maven.compiler.target>1.7</maven.compiler.target>
     </properties>
 
-    <name>AGRESTE Testing Library</name>
+    <name>AGRESTE (Testing Library)</name>
     <description>Testing utilities for AGRESTE-based applications</description>
     <url>https://github.com/agapsys/agreste</url>
 
@@ -64,7 +64,7 @@ limitations under the License.
         <!-- Compile dependencies -->
         <dependency>
             <groupId>com.agapsys</groupId>
-            <artifactId>agreste</artifactId>
+            <artifactId>agreste-core</artifactId>
             <version>[0.1.0, 1.0.0)</version>
         </dependency>
         <dependency>
