@@ -30,7 +30,7 @@ import javax.servlet.annotation.WebListener;
 public class MockedWebApplication extends AgresteApplication {
 
     @Override
-    public String getName() {
+    public String getRootName() {
         return "test-app";
     }
 
