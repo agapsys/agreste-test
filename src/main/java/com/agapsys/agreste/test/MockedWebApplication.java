@@ -52,7 +52,7 @@ public class MockedWebApplication extends AgresteApplication {
     protected void afterAgresteStop() {
         try {
             super.afterAgresteStop();
-            FileUtils.deleteFile(getDirectory());
+            FileUtils.deleteFile(getDirectory().getParentFile());
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
