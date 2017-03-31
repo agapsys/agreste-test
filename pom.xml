@@ -21,7 +21,7 @@ limitations under the License.
 
     <groupId>com.agapsys</groupId>
     <artifactId>agreste-test</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.0-20170330</version>
     <packaging>jar</packaging>
 
     <properties>
