@@ -18,22 +18,22 @@ package com.agapsys.agreste.test;
 import com.agapsys.utils.console.printer.ConsoleColor;
 import com.agapsys.utils.console.printer.ConsolePrinter;
 import com.agapsys.web.toolkit.LogType;
-import com.agapsys.web.toolkit.modules.LogModule;
+import com.agapsys.web.toolkit.services.LogService;
 import com.agapsys.web.toolkit.utils.DateUtils;
 import java.util.Date;
 
-public class ColoredConsoleLogStream extends LogModule.ConsoleLogStream {
+public class ColoredConsoleLogger extends LogService.ConsoleLogger {
     private final boolean useLightColors;
 
-    public ColoredConsoleLogStream(boolean useLightColors) {
+    public ColoredConsoleLogger(boolean useLightColors) {
         this.useLightColors = useLightColors;
     }
 
-    public ColoredConsoleLogStream() {
+    public ColoredConsoleLogger() {
         this(false);
     }
 
-    private ConsoleColor getColor(LogType logType) {
+    private ConsoleColor __getColor(LogType logType) {
         switch (logType) {
             case INFO:
                 return useLightColors ? ConsoleColor.LIGHT_GREEN : ConsoleColor.GREEN;
@@ -51,6 +51,6 @@ public class ColoredConsoleLogStream extends LogModule.ConsoleLogStream {
 
     @Override
     protected String getMessage(Date timestamp, LogType logType, String message) {
-        return String.format("%s [%s] %s", DateUtils.getIso8601Date(), ConsolePrinter.toString(getColor(logType), logType.name()), message);
+        return String.format("%s [%s] %s", DateUtils.getIso8601Date(), ConsolePrinter.toString(__getColor(logType), logType.name()), message);
     }
 }

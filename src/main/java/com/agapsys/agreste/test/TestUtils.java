@@ -32,7 +32,7 @@ import com.agapsys.rcf.JsonRequest;
 import com.agapsys.rcf.JsonResponse;
 import com.agapsys.utils.console.printer.ConsoleColor;
 import com.agapsys.utils.console.printer.ConsolePrinter;
-import com.agapsys.web.toolkit.modules.PersistenceModule;
+import com.agapsys.web.toolkit.services.PersistenceService;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
@@ -248,6 +248,6 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
      * @return {@linkplain EntityManager} instance. Do not forget to close it after use in order to avoid resource leakage.
      */
     public static EntityManager getApplicationEntityManager() {
-        return getApplicationModule(PersistenceModule.class).getEntityManager();
+        return getApplicationService(PersistenceService.class).getEntityManager();
     }
 }

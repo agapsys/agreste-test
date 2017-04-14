@@ -16,12 +16,12 @@
 
 package com.agapsys.agreste.test;
 
-import com.agapsys.agreste.AbuseCheckFilter;
 import com.agapsys.agreste.JpaTransactionFilter;
 import com.agapsys.rcf.Controller;
 import com.agapsys.rcf.ControllerRegistrationListener;
 import com.agapsys.rcf.WebController;
 import com.agapsys.web.toolkit.AbstractWebApplication;
+import com.agapsys.web.toolkit.MockedWebApplication;
 import com.agapsys.web.toolkit.WebApplicationContainer;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -102,7 +102,6 @@ public class AgresteContainer<AC extends AgresteContainer<AC>> extends WebApplic
     }
 
     private void __init() {
-        super.registerFilter(AbuseCheckFilter.class, "/*");
         super.registerFilter(JpaTransactionFilter.class, "/*");
 
         __registerScannedControllers();
