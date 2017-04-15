@@ -21,7 +21,6 @@ import com.agapsys.rcf.Controller;
 import com.agapsys.rcf.ControllerRegistrationListener;
 import com.agapsys.rcf.WebController;
 import com.agapsys.web.toolkit.AbstractWebApplication;
-import com.agapsys.web.toolkit.MockedWebApplication;
 import com.agapsys.web.toolkit.WebApplicationContainer;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -37,7 +36,7 @@ public class AgresteContainer<AC extends AgresteContainer<AC>> extends WebApplic
     // STATIC SCOPE ============================================================
 
     public static AgresteContainer<?> newInstance(Class<? extends HttpServlet>...servletsOrControllers) {
-        return newInstance(MockedWebApplication.class, servletsOrControllers);
+        return newInstance(MockedAgresteApplication.class, servletsOrControllers);
     }
 
     public static AgresteContainer<?> newInstance(Class<? extends AbstractWebApplication> webApp, Class<? extends HttpServlet>...servletsOrControllers) {
@@ -113,7 +112,7 @@ public class AgresteContainer<AC extends AgresteContainer<AC>> extends WebApplic
     }
 
     public AgresteContainer() {
-        this(MockedWebApplication.class);
+        this(MockedAgresteApplication.class);
     }
 
     public AC registerController(Class<? extends Controller> controllerClass, String name) {

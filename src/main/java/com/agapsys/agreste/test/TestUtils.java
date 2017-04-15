@@ -30,8 +30,6 @@ import com.agapsys.http.StringEntityRequest.StringEntityPut;
 import com.agapsys.rcf.HttpMethod;
 import com.agapsys.rcf.JsonRequest;
 import com.agapsys.rcf.JsonResponse;
-import com.agapsys.utils.console.printer.ConsoleColor;
-import com.agapsys.utils.console.printer.ConsolePrinter;
 import com.agapsys.web.toolkit.services.PersistenceService;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -177,7 +175,6 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
         }
     }
 
-
     public static <R extends StringEntityRequest> R createJsonRequest(Class<R> requestClass, Object obj, String uri, Object...uriParams) {
         try {
             Constructor c = requestClass.getConstructor(String.class, String.class, String.class, Object[].class);
@@ -216,11 +213,11 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
     }
 
     public static void println(String msg, Object...msgArgs) {
-        println(ConsoleColor.MAGENTA, msg, msgArgs);
+        println(0, msg, msgArgs);
     }
 
     public static void print(String msg, Object...msgArgs) {
-        print(ConsoleColor.MAGENTA, msg, msgArgs);
+        print(0, msg, msgArgs);
     }
 
     /**
@@ -229,8 +226,8 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
      * @param msg message to be print
      * @param msgArgs optional message arguments
      */
-    public static void println(ConsoleColor fgColor, String msg, Object...msgArgs) {
-        ConsolePrinter.println(fgColor, msg, msgArgs);
+    public static void println(int fgColor, String msg, Object...msgArgs) {
+        print(fgColor, msg + "\n", msgArgs);
     }
 
     /**
@@ -239,8 +236,8 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
      * @param msg message to be print
      * @param msgArgs optional message arguments
      */
-    public static void print(ConsoleColor fgColor, String msg, Object...msgArgs) {
-        ConsolePrinter.print(fgColor, msg, msgArgs);
+    public static void print(int fgColor, String msg, Object...msgArgs) {
+        System.out.print(String.format("\u001B[%dm%s\u001B[0m", fgColor, msgArgs.length == 0 ? msg : String.format(msg, msgArgs)));
     }
 
     /**
@@ -248,6 +245,10 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
      * @return {@linkplain EntityManager} instance. Do not forget to close it after use in order to avoid resource leakage.
      */
     public static EntityManager getApplicationEntityManager() {
-        return getApplicationService(PersistenceService.class).getEntityManager();
+        PersistenceService persistenceService = getApplicationService(PersistenceService.class, false);
+        if (persistenceService == null)
+            return null;
+
+        return persistenceService.getEntityManager();
     }
 }

@@ -26,7 +26,7 @@ public class MockedTransaction implements JpaTransaction {
     private final List<Runnable> commitQueue = new LinkedList<>();
     private final List<Runnable> rollbackQueue = new LinkedList<>();
 
-    private EntityManager em;
+    private final EntityManager em;
     private EntityTransaction et;
 
     public MockedTransaction(EntityManager em) {
