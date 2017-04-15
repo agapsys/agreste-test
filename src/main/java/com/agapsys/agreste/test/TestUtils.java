@@ -241,7 +241,7 @@ public class TestUtils extends com.agapsys.web.toolkit.TestUtils {
     }
 
     /**
-     * Returns an {@linkplain EntityManager} provided by {@linkplain PersistenceModule} registered with running application.
+     * Returns an {@linkplain EntityManager} provided by {@linkplain PersistenceService} registered with running application.
      * @return {@linkplain EntityManager} instance. Do not forget to close it after use in order to avoid resource leakage.
      */
     public static EntityManager getApplicationEntityManager() {
